@@ -105,7 +105,7 @@ class ControllerCalendar {
         }
         return '{"res":"-2"}';
     }
-    
+
     public static function setEdit(Database $db) {
         $params['alias'] = Request::req('alias');
         $params['password'] = sha1(Request::req('password'));
@@ -223,15 +223,18 @@ class ControllerCalendar {
         $calendar .= ']';
         return $calendar;
     }
-    
+
     public static function setOut(Database $db) {
         $session = new Session();
         $user = $session->getUser();
-        $user->setActive(0);
-        $manager = new ManagerUser($db);
-        $res = $manager->set($user);
-        $db->close();
-        return '{"res":"'.$res.'"}';
+        if ($user->getAdministator() != 1) {
+            $user->setActive(0);
+            $manager = new ManagerUser($db);
+            $res = $manager->set($user);
+            $db->close();
+            return '{"res":"' . $res . '"}';
+        }
+        return '{"res":"0"}';
     }
 
 }
