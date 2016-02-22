@@ -8,10 +8,12 @@ class ControllerCalendar {
         date_default_timezone_set('Europe/Madrid');
         $method = Request::req('op') . Request::req('set');
         $db = new Database();
-        if ($method == '' || $method == null) {
+        if ($method == '' || $method == null && $user != null) {
             return self::getCalendar($db);
         } else if (method_exists(__CLASS__, $method)) {
             return self::$method($db);
+        } else if (!method_exists(__CLASS__, $method) && $user != null) {
+            return self::viewCalendar();
         } else {
             return self::viewLogin();
         }
@@ -27,11 +29,9 @@ class ControllerCalendar {
         return file_get_contents('view/login.html');
     }
 
-    public static function viewSingUp() {
-        $session = new Session();
-        $user = $session->getUser();
-        return str_replace('{alias}','',file_get_contents('view/signup.html'));
-    }
+//    public static function viewSingUp() {
+//        return file_get_contents('view/login.html');
+//    }
 
     public static function viewCalendar() {
         $page = file_get_contents('view/horario.html');
@@ -41,6 +41,12 @@ class ControllerCalendar {
             return str_replace('{gestion}', file_get_contents('view/gestion.html'), $page);
         }
         return str_replace('{gestion}', '<div id="ed" class="gest">Editar mi usuario</div><div id="de" class="gest">Darme de baja</div><div id="ex" class="gest">Salir</div>', $page);
+    }
+    
+    public static function viewNewUser() {
+        $session = new Session();
+        $user = $session->getUser();
+        return str_replace('{alias}','',file_get_contents('view/signup.html'));
     }
     
     public static function viewEditUser() {

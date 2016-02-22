@@ -347,9 +347,15 @@ function eventsCalendar() {
     setHoursTo();
 }
 
-function eventsSignUp() {
+function eventsSignUp(param) {
     var btSignup = document.getElementById('btsignup');
     var btBack = document.getElementById('btback');
+    if(param==1){
+        setEvent(btSignup,'click',setSignUp);
+    }else{
+        setEvent(btSignup,'click',setEdit);
+    }
+    setEvent(btBack,'click',setBack);
 }
 
 function eventsLogin() {
@@ -368,6 +374,18 @@ function eventsLogin() {
  * RESPUESTA FUNCTIONES DE VISTA
  * --------------------------------------
  */
+
+function setSignUp(){
+    
+}
+
+function setEdit(){
+    
+}
+
+function setBack(){
+    calendar();
+}
 
 function loginResponse(param) {
     var wrapper = document.getElementById('wrapper');
@@ -393,11 +411,13 @@ function calendarResponse(param) {
 function viewNewUserResponse(param) {
     var wrapper = document.getElementById('wrapper');
     wrapper.innerHTML = param;
+    eventsSignUp(1);
 }
 
 function viewEditUserResponse(param) {
     var wrapper = document.getElementById('wrapper');
     wrapper.innerHTML = param;
+    eventsSignUp(2);
 }
 
 function viewDeleteUserResponse(param) {
