@@ -37,33 +37,41 @@ class ControllerCalendar {
         $page = file_get_contents('view/horario.html');
         $session = new Session();
         $user = $session->getUser();
-        if($user->getAdministator() == 1){
+        if ($user->getAdministator() == 1) {
             return str_replace('{gestion}', file_get_contents('view/gestion.html'), $page);
         }
         return str_replace('{gestion}', '<div id="ed" class="gest">Editar mi usuario</div><div id="de" class="gest">Darme de baja</div><div id="ex" class="gest">Salir</div>', $page);
     }
-    
+
     public static function viewNewUser() {
         $session = new Session();
         $user = $session->getUser();
-        return str_replace('{alias}','',file_get_contents('view/signup.html'));
+        return str_replace('{alias}', '', file_get_contents('view/signup.html'));
     }
-    
+
     public static function viewEditUser() {
         $session = new Session();
         $user = $session->getUser();
-        return str_replace('{alias}',$user->getAlias(),file_get_contents('view/signup.html'));
+        return str_replace('{alias}', $user->getAlias(), file_get_contents('view/signup.html'));
     }
-    
+
     public static function viewDeleteUser() {
         return file_get_contents('view/signup.html');
     }
-    
+
     public static function exitUser() {
         $session = new Session();
         $session->erase('_user');
         $session->destroy();
         return self::viewLogin();
+    }
+
+    public static function isLoged() {
+        $session = new Session();
+        if ($session->getUser()) {
+            return '{"res":"1"}';
+        }
+        return '{"res":"0"}';
     }
 
     /*
@@ -80,12 +88,43 @@ class ControllerCalendar {
      */
 
     public static function getSignup(Database $db) {
-        $alias = Request::req('alias');
-        $password = Request::req('password');
-        if ($alias != null && $alias != '' && $password != null && $password != '') {
-            $manager = new ManagerUser($db);
-            $user = $manager->login($params);
+        $params['alias'] = Request::req('alias');
+        $params['password'] = sha1(Request::req('password'));
+        $rpass = sha1(Request::req('password'));
+        if ($params['password'] != $rpass) {
+            return '{"res":"-3"}';
         }
+        if ($params['alias'] != null && $params['alias'] != '' && $params['password'] != null && $params['password'] != '') {
+            $manager = new ManagerUser($db);
+            if ($manager->exists($params['alias']) == false) {
+                $res = $manager->insert(new User(null, $params['alias'], $params['password'], 1, 0));
+                return '{"res":"' . $res . '"}';
+            } else {
+                return '{"res":"-1"}';
+            }
+        }
+        return '{"res":"-2"}';
+    }
+    
+    public static function setEdit(Database $db) {
+        $params['alias'] = Request::req('alias');
+        $params['password'] = sha1(Request::req('password'));
+        $rpass = sha1(Request::req('password'));
+        $session = new Session();
+        $user = $session->getUser();
+        if ($params['password'] != $rpass) {
+            return '{"res":"-3"}';
+        }
+        if ($params['alias'] != null && $params['alias'] != '' && $params['password'] != null && $params['password'] != '') {
+            $manager = new ManagerUser($db);
+            if ($manager->exists($params['alias']) == false) {
+                $res = $manager->set(new User($user->getId(), $params['alias'], $params['password'], 1, 0));
+                return '{"res":"' . $res . '"}';
+            } else {
+                return '{"res":"-1"}';
+            }
+        }
+        return '{"res":"-2"}';
     }
 
     public static function getLogin(Database $db) {
@@ -119,6 +158,8 @@ class ControllerCalendar {
     }
 
     public static function insertCalendar(Database $db) {
+        $session = new Session();
+        $user = $session->getUser();
         $date = Request::req('date');
         $hour = Request::req('hour');
         if ($date == null || $date == '' || $hour == null || $hour == '') {
@@ -126,7 +167,7 @@ class ControllerCalendar {
         } else if (self::getBookingNumber($db) > 0) {
             return '{"action":"insert","res":"-1","date":"' . $date . '","hour":"' . $hour . '"}';
         } else {
-            $object = new Booking(NULL, $date, $hour, 1, 1);
+            $object = new Booking(NULL, $date, $hour, 1, $user->getId());
             $manager = new ManagerCalendar($db);
             $res = $manager->insert($object);
             $db->close();
@@ -142,10 +183,11 @@ class ControllerCalendar {
     }
 
     public static function deleteCalendar(Database $db) {
-        $date = Request::req('date');
-        $hour = Request::req('hour');
-        $params['date'] = $date;
-        $params['hour'] = $hour;
+        $session = new Session();
+        $user = $session->getUser();
+        $params['date'] = Request::req('date');
+        $params['hour'] = Request::req('hour');
+        $params['user'] = $user->getId();
         $manager = new ManagerCalendar($db);
         $object = $manager->selec($params);
         $res = $manager->erase($object);
@@ -167,8 +209,29 @@ class ControllerCalendar {
         $params['date'] = Request::req('date');
         $params['hour'] = Request::req('hour');
         $calendar = $manager->getListJSON($params);
+        $objects = json_decode($calendar, true);
+        $manager = new ManagerUser($db);
+        $calendar = '[';
+        for ($i = 0; $i < count($objects); $i++) {
+            $user = $manager->get($objects[$i]["user"]);
+            $calendar .= '{"user":"' . $user->getAlias() . '"},';
+        }
         $db->close();
+        if (strlen($calendar) > 1) {
+            $calendar = substr($calendar, 0, -1);
+        }
+        $calendar .= ']';
         return $calendar;
+    }
+    
+    public static function setOut(Database $db) {
+        $session = new Session();
+        $user = $session->getUser();
+        $user->setActive(0);
+        $manager = new ManagerUser($db);
+        $res = $manager->set($user);
+        $db->close();
+        return '{"res":"'.$res.'"}';
     }
 
 }

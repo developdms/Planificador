@@ -1,3 +1,7 @@
+CREATE DATABASE horario;
+
+USE horario;
+
 CREATE TABLE User (
     id integer primary key auto_increment,
     alias varchar(40) unique not null,

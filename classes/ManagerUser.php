@@ -25,9 +25,9 @@ class ManagerUser {
         return NULL;
     }
 
-    function get($email) {
+    function get($id) {
         if ($this->db !== NULL) {
-            $params['email'] = $email;
+            $params['id'] = $id;
             $user = $this->selec($params);
             return $user;
         }
@@ -49,14 +49,13 @@ class ManagerUser {
         return NULL;
     }
 
-    function exists(User $param) {
-        $params['email'] = $param->getEmail();
-        $params['alias'] = $param->getAlias();
-        $condition = "email =:email OR alias =:alias";
+    function exists($alias) {
+        $params['alias'] = $alias;
+        $condition = " alias =:alias";
         $this->db->select($this->table, '*', $condition, $params);
         $user = new User();
         $user->set($this->db->getRow());
-        return $user->getEmail() != NULL;
+        return $user->getId() != NULL;
     }
 
     function unlock($params = NULL, $condition = ' 1 = 1') {
@@ -92,9 +91,9 @@ class ManagerUser {
         $parametros = $param->get();
         $parametrosWhere = array();
         if ($pkcode !== NULL) {
-            $parametrosWhere["email"] = $pkcode;
+            $parametrosWhere["id"] = $pkcode;
         } else {
-            $parametrosWhere["email"] = $param->getEmail();
+            $parametrosWhere["id"] = $param->getId();
         }
         return $this->db->update($this->table, $parametros, $parametrosWhere);
     }

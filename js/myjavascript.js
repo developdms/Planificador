@@ -64,6 +64,27 @@ function getInsertConfirmMessage() {
     return confirm('Vas a realizar la reserva\n¿Estás seguro?');
 }
 
+function messageEditSignUp(param) {
+    switch (param) {
+        case '1':
+            modalMessage(1, 'Correcto');
+            break;
+        case '-1':
+            modalMessage(2, 'Alias ocupado');
+            break;
+        case '-2':
+            modalMessage(2, 'Faltan datos');
+            break;
+        case '-3':
+            modalMessage(2, 'Las contraseñas no coinciden');
+            break;
+        default:
+            modalMessage(2, 'Error');
+    }
+
+    dialog();
+}
+
 function getLang() {
     return navigator.language || navigator.userLanguage;
 }
@@ -137,10 +158,12 @@ function colors(element, addColor, removeColor) {
 }
 
 function dialog(element) {
-    var date = element.parentNode.parentNode.previousElementSibling.getAttribute('data-date');
-    var hour = element.getAttribute('data-hour');
-    document.getElementById('fecha').value = date;
-    document.getElementById('hora').value = hour;
+    if (element != null) {
+        var date = element.parentNode.parentNode.previousElementSibling.getAttribute('data-date');
+        var hour = element.getAttribute('data-hour');
+        document.getElementById('fecha').value = date;
+        document.getElementById('hora').value = hour;
+    }
     document.getElementById("myDialog").showModal();
 }
 
@@ -245,6 +268,11 @@ function getSignUpResponse(param) {
     var res = JSON.parse(param);
 }
 
+function setEditResponse(param) {
+    var res = JSON.parse(param);
+    messageEditSignUp(res.res);
+}
+
 /*
  * --------------------------------------
  * FIN RESPUESTA OPERACIONES
@@ -309,6 +337,12 @@ function getSignUp() {
             'op=get&set=SignUp=' + user + '&password=' + pass);
 }
 
+function setSignUpResponse(param) {
+    var res = JSON.parse(param);
+    messageEditSignUp(res.res);
+
+}
+
 /*
  * --------------------------------------
  * FIN OPERACIONES
@@ -350,12 +384,12 @@ function eventsCalendar() {
 function eventsSignUp(param) {
     var btSignup = document.getElementById('btsignup');
     var btBack = document.getElementById('btback');
-    if(param==1){
-        setEvent(btSignup,'click',setSignUp);
-    }else{
-        setEvent(btSignup,'click',setEdit);
+    if (param == 1) {
+        setEvent(btSignup, 'click', setSignUp);
+    } else {
+        setEvent(btSignup, 'click', setEdit);
     }
-    setEvent(btBack,'click',setBack);
+    setEvent(btBack, 'click', setBack);
 }
 
 function eventsLogin() {
@@ -375,15 +409,38 @@ function eventsLogin() {
  * --------------------------------------
  */
 
-function setSignUp(){
-    
+function setSignUp() {
+    var alias = document.getElementById('alias').value;
+    var password = document.getElementById('pass').value;
+    var rpassword = document.getElementById('rpass').value;
+    if (password == rpassword && alias != '' && alias != null && password != '') {
+        ajaxRequest('controller.php', setSignUpResponse, 'op=get&set=SignUp&alias=' + alias + '&password=' + password + '&rpass=' + rpassword);
+    } else if (password != rpassword) {
+        modalMessage(2, 'Las contraseñas no coinciden');
+        dialog();
+    } else {
+        modalMessage(2, 'Faltan datos por insertar');
+        dialog();
+    }
 }
 
-function setEdit(){
-    
+function setEdit() {
+    var alias = document.getElementById('alias').value;
+    var password = document.getElementById('pass').value;
+    var rpassword = document.getElementById('rpass').value;
+    if (password == rpassword && alias != '' && alias != null && password != '') {
+        ajaxRequest('controller.php', setEditResponse, 'op=set&set=Edit&alias=' + alias + '&password=' + password + '&rpass=' + rpassword);
+    } else if (password != rpassword) {
+        modalMessage(2, 'Las contraseñas no coinciden');
+        dialog();
+    } else {
+        modalMessage(2, 'Faltan datos por insertar');
+        dialog();
+    }
+
 }
 
-function setBack(){
+function setBack() {
     calendar();
 }
 
@@ -393,9 +450,9 @@ function loginResponse(param) {
     eventsLogin();
 }
 
-function signupResponse(param) {
-    eventsSignUp();
-}
+//function signupResponse(param) {
+//    eventsSignUp();
+//}
 
 function calendarResponse(param) {
     var wrapper = document.getElementById('wrapper');
@@ -420,13 +477,24 @@ function viewEditUserResponse(param) {
     eventsSignUp(2);
 }
 
-function viewDeleteUserResponse(param) {
-    var wrapper = document.getElementById('wrapper');
-    wrapper.innerHTML = param;
+function setDeleteUserResponse(param) {
+    var res = JSON.parse(param);
+    if(res.res == '1'){
+        exitUser();
+    }
 }
 
 function exitUserResponse(param) {
     loginResponse(param);
+}
+
+function isLogedResponse(param) {
+    var res = JSON.parse(param);
+    if (res.res == '1') {
+        calendar();
+    } else {
+        login();
+    }
 }
 
 /*
@@ -445,13 +513,17 @@ function calendar() {
     ajaxRequest('controller.php', calendarResponse, 'op=view&set=Calendar');
 }
 
+function isLoged() {
+    ajaxRequest('controller.php', isLogedResponse, 'op=is&set=Loged');
+}
+
 function login() {
     ajaxRequest('controller.php', loginResponse, 'op=view&set=Login');
 }
 
-function signup() {
-    ajaxRequest('controller.php', signupResponse, 'op=view&set=SignUp');
-}
+//function signup() {
+//    ajaxRequest('controller.php', signupResponse, 'op=view&set=SignUp');
+//}
 
 function viewNewUser() {
     ajaxRequest('controller.php', viewNewUserResponse, 'op=view&set=NewUser');
@@ -461,8 +533,10 @@ function viewEditUser() {
     ajaxRequest('controller.php', viewEditUserResponse, 'op=view&set=EditUser');
 }
 
-function viewDeleteUser() {
-    ajaxRequest('controller.php', viewDeleteUserResponse, '');
+function setDeleteUser() {
+    if (confirm('¿Estás seguro de querer darte de baja?')) {
+        ajaxRequest('controller.php', setDeleteUserResponse, 'op=set&set=Out');
+    }
 }
 
 function exitUser() {
@@ -478,7 +552,7 @@ function exitUser() {
 function manageEvents() {
     if (document.getElementById('ed') != null) {
         setEvent(document.getElementById('ed'), 'click', viewEditUser);
-        setEvent(document.getElementById('de'), 'click', viewDeleteUser);
+        setEvent(document.getElementById('de'), 'click', setDeleteUser);
         setEvent(document.getElementById('ex'), 'click', exitUser);
     }
     if (document.getElementById('ne')) {
@@ -499,13 +573,9 @@ function main() {
     });
     setEvent(document.getElementById('cancelar'), 'click', closeDialog);
     setEvent(document.getElementById('btcerrar'), 'click', closeDialog);
-    if (document.getElementsByClassName('calendario').length != 0) {
-        calendar();
-    } else if (document.getElementsByClassName('signup').length != 0) {
-        signup();
-    } else {
-        login();
-    }
+
+    isLoged();
+
 }
 
 window.addEventListener('load', main, false);

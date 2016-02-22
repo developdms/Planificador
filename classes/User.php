@@ -10,7 +10,7 @@ class User {
         $this->password = $password;
         $this->alias = $alias;
         $this->active = $active;
-        $this->administrator = $administator;
+        $this->administator = $administator;
     }
 
     public function getId() {
