@@ -1,0 +1,158 @@
+
+body{
+    font: 62.5% "Trebuchet MS", sans-serif;
+    margin: 50px;
+}
+
+.green {
+    background-color: #339900;
+    color: white;
+}
+
+.red {
+    background-color: #cc0000;
+    color: white;
+}
+
+.blue {
+    color:#0099cc;
+}
+
+.left{
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+#myDialog{
+    width: 250px;
+    text-align: center;
+}
+
+#myDialog button {
+
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 7px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.hidden {
+    display: none;
+}
+
+.letterGreen {
+    color: #339900;
+}
+
+.letterRed {
+    color: #cc0000;
+}
+
+.calendar {
+    width: 60%;
+}
+
+.calendar table {
+    width: 100%;
+    font-size: 14px;
+    text-align: center;
+}
+
+#login, #signup{
+    width: 400px;
+    margin: 0 auto;
+}
+
+.form-top {
+    background-color: #cccccc;
+    margin-bottom: 20px;
+}
+
+.form-top, .form-down{
+    display: block;
+}
+
+.form-top > label {
+    display: inline-block;
+    width: 85%;
+    font-size: 20px;
+    padding-bottom: 10px;
+}
+
+.form-top > img{
+    width: 15%;
+}
+
+.form-down > input {
+    display: block;
+    width: 100%;
+    height: 30px;
+    background-color: white;
+    border: solid #0099cc 1px;
+    border-radius: 4px;
+    
+}
+
+.form-down > label {
+    font-size: 14px;
+}
+
+#btlogin, #btsignup {
+    background-color: #0099cc;
+    color: white;
+    width: 100px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+#btback {
+    background-color: #cc0000;
+    color: white;
+    width: 100px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+@media screen and (min-width: 951px){
+    .right {
+        margin-right: 7%;
+    }
+}
+
+@media screen and (min-width: 861px) and (max-width: 950px){
+    .right {
+        margin-right: 2%;
+    }
+}
+
+@media screen and (max-width: 861px){
+    .left{
+        display: block;
+        float: none;
+    }
+    .right {
+        display: block;
+        float: none;
+    }
+    .calendar {
+        width: 90%;
+        margin: 0 auto;
+    }
+}
+
+.gest {
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.gest:hover {
+    background-color: #0099cc;
+    color: white;
+}
+
