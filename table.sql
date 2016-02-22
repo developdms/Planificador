@@ -10,6 +10,8 @@ CREATE TABLE User (
     administator int(1) not null
 );
 
+INSERT INTO User VALUES(null,'usuario',sha('contraseña'),1,1);
+
 CREATE TABLE Booking (
     id integer primary key auto_increment,
     date date not null,
