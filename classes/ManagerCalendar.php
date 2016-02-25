@@ -78,11 +78,13 @@ class ManagerCalendar {
         return NULL;
     }
 
-    function getListJSON($params = NULL, $proyection = '*', $order = '1', $limit = '') {
+    function getListJSON($params = NULL, $proyection = '*', $condition = null, $order = '1', $limit = '') {
         if ($this->db != NULL) {
-            $condition = ' 1=1';
-            foreach ($params as $key => $value) {
-                $condition .= " AND $key=:$key";
+            if ($condition == null) {
+                $condition = ' 1=1';
+                foreach ($params as $key => $value) {
+                    $condition .= " AND $key=:$key";
+                }
             }
             $this->db->select($this->table, $proyection, $condition, $params);
             $listJSON = '[';

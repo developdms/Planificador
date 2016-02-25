@@ -32,8 +32,6 @@ require './classes/AutoLoad.php';
     <!-- Fin de mi dialogo-->
     <div id="wrapper" ng-app="calendar" ng-controller="myCtrl">
     </div>
-</div>
-<script src="js/angular.min.js"></script>
-<script src="js/app.js"></script> 
+</div> 
 </body>
 </html>

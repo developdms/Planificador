@@ -152,7 +152,7 @@ class ControllerCalendar {
         $manager = new ManagerCalendar($db);
         $today = getdate();
         $params['date'] = $today['year'] . '-' . $today['mon'] . '-' . $today['mday'];
-        $calendar = $manager->getListJSON($params);
+        $calendar = $manager->getListJSON($params,'*','date>=:date');
         $db->close();
         return $calendar;
     }
